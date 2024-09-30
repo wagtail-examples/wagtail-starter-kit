@@ -361,6 +361,20 @@ files = [
 Django = ">=3.2"
 
 [[package]]
+name = "django-upgrade"
+version = "1.21.0"
+description = "Automatically upgrade your Django project code."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django_upgrade-1.21.0-py3-none-any.whl", hash = "sha256:a0a7b11d5108fb2d3038cea2382c1332c9be4ff5059a38357fbd28116ebf3803"},
+    {file = "django_upgrade-1.21.0.tar.gz", hash = "sha256:e65021029e7d18b407bd128a8ccb31e5e06685068b37b6b1eaf2f77aa3d3df98"},
+]
+
+[package.dependencies]
+tokenize-rt = ">=4.1"
+
+[[package]]
 name = "djangorestframework"
 version = "3.15.2"
 description = "Web APIs for Django, made easy."
@@ -822,6 +836,20 @@ files = [
 ]
 
 [[package]]
+name = "pyupgrade"
+version = "3.17.0"
+description = "A tool to automatically upgrade syntax for newer versions."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pyupgrade-3.17.0-py2.py3-none-any.whl", hash = "sha256:cbc8f67a61d3f4e7ca9c2ef57b9aae67f023d3780ce30c99fccec78401723754"},
+    {file = "pyupgrade-3.17.0.tar.gz", hash = "sha256:d5dd1dcaf9a016c31508bb9d3d09fd335d736578092f91df52bb26ac30c37919"},
+]
+
+[package.dependencies]
+tokenize-rt = ">=5.2.0"
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -956,6 +984,17 @@ files = [
 docs = ["mkdocs (>=1.1,<1.2)", "mkdocs-material (>=6.2,<6.3)"]
 
 [[package]]
+name = "tokenize-rt"
+version = "6.0.0"
+description = "A wrapper around the stdlib `tokenize` which roundtrips."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tokenize_rt-6.0.0-py2.py3-none-any.whl", hash = "sha256:d4ff7ded2873512938b4f8cbb98c9b07118f01d30ac585a30d7a88353ca36d22"},
+    {file = "tokenize_rt-6.0.0.tar.gz", hash = "sha256:b9711bdfc51210211137499b5e355d3de5ec88a85d2025c520cbb921b5194367"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1088,4 +1127,4 @@ wand = ["Wand (>=0.6,<1.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "39a012f1acfb60258d52e9a142d79cabe6aa6aa83ddde5ff7c9a5666cd0c8a67"
+content-hash = "59e1d808f0217fdcde2a053b1ca253799c9da222a841670d6735be996179800c"
