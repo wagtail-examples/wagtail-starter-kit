@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - path: .env
+        required: false
+    command: tail -f /dev/null
+
+  db:
+    # See the compose.override.yaml file for the database service configuration
+    env_file:
+      - path: .env
+        required: false
+
+volumes:
+  dbdata:
