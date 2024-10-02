@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      args:
+        DBMODULE: pip install psycopg2
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+volumes:
+  dbdata:

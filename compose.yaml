@@ -1,22 +1,48 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
-    env_file:
-      - path: .env
-        required: false
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DJANGO_SECRET_KEY: app-secret_key
+      WAGTAIL_SITE_NAME: wagtail-starter-kit
+      WAGTAILADMIN_BASE_URL: http://localhost:8000
     command: tail -f /dev/null
 
-  db:
-    # See the compose.override.yaml file for the database service configuration
-    env_file:
-      - path: .env
-        required: false
+  # A convienient utility app to manage the database https://hub.docker.com/_/adminer/
+  # Adminer is a full-featured database management tool written in PHP.
+  # It can be used to manage MySQL, PostgreSQL, SQLite, MS SQL, Oracle, SimpleDB, Elasticsearch, and MongoDB databases.
+  # Accessible at http://localhost:8080
+  # ADMINER - un-comment to use ---------------------------------------
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+  # END ADMINER -------------------------------------------------------
 
-volumes:
-  dbdata:
+  # A convienient utility app to test 'real' emails https://hub.docker.com/r/mailhog/mailhog/
+  # MailHog is an email testing tool for developers.
+  # It catches all emails sent by your application and allows you to preview them in a web interface.
+  # Accessible at http://localhost:8025
+  # MAILHOG - un-comment to use ---------------------------------------
+  mailhog:
+    image: mailhog/mailhog
+    platform: linux/amd64
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+    depends_on:
+      - db
+  # END MAILHOG -------------------------------------------------------
