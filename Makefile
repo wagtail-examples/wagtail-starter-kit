@@ -1,10 +1,15 @@
 # Makefile for Docker Compose commands
 
-# Variables
-# OVERRIDE = compose.mysql.override.yaml
-OVERRIDE = compose.postgresql.override.yaml
+# --- Un-comment to suite your needs --- #
 
-DC = docker compose -f compose.yaml -f $(OVERRIDE)
+# Default SQLite Database
+# DC = docker compose -f compose.yaml
+
+# MySQL Database
+# DC = docker compose -f compose.yaml -f compose.mysql.override.yaml
+
+# PostgreSQL Database
+DC = docker compose -f compose.yaml -f compose.postgresql.override.yaml
 
 # Default target
 .PHONY: help
@@ -25,6 +30,10 @@ help:
 	@echo "  restoredb  Restore the database from a backup"
 	@echo "  sh			Execute a command in a running container"
 	@echo "  restart    Restart the containers"
+	@echo ""
+	@echo " Quckstart"
+	@echo "  quickstart Build, start, and run the containers"
+	@echo ""
 
 # Build the containers
 .PHONY: build
@@ -70,3 +79,7 @@ migrate:
 .PHONY: superuser
 superuser:
 	$(DC) exec app python manage.py createsuperuser
+
+# Qucikstart
+.PHONY: quickstart
+quickstart: build up migrate run
