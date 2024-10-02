@@ -1,6 +1,9 @@
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
 FROM python:3.10-bookworm
 
+# Sets the database module to be used, if not using SQLite.
+ARG DBMODULE
+
 # Add user that will be used in the container.
 RUN useradd wagtail
 
@@ -12,7 +15,8 @@ EXPOSE 8000
 # 2. Set PORT variable that is used by Gunicorn. This should match "EXPOSE"
 #    command.
 ENV PYTHONUNBUFFERED=1 \
-    PORT=8000
+    PORT=8000 \
+    DBMODULE=${DBMODULE}
 
 # Install system packages required by Wagtail and Django.
 RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
@@ -28,7 +32,8 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
 
 # Install the project requirements.
 COPY requirements.txt /
-RUN pip install -r /requirements.txt
+RUN pip install -U pip && pip install -r /requirements.txt
+RUN ${DBMODULE}
 
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app
