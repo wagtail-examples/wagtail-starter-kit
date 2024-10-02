@@ -16,10 +16,13 @@ import os
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
+environment = os.environ.copy()
+print(environment)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = environment.get("DJANGO_SECRET_KEY", None)
+ALLOWED_HOSTS = environment.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+DEBUG = environment.get("DEBUG", "False").lower() == "true"
 
 # Application definition
 
@@ -84,12 +87,35 @@ WSGI_APPLICATION = "app.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+if environment.get("MYSQL_DATABASE", None):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": environment.get("MYSQL_DATABASE"),
+            "USER": environment.get("MYSQL_USER"),
+            "PASSWORD": environment.get("MYSQL_PASSWORD"),
+            "HOST": environment.get("MYSQL_HOST"),
+            "PORT": environment.get("MYSQL_PORT"),
+        }
     }
-}
+elif environment.get("POSTGRES_DB", None):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": environment.get("POSTGRES_DB"),
+            "USER": environment.get("POSTGRES_USER"),
+            "PASSWORD": environment.get("POSTGRES_PASSWORD"),
+            "HOST": environment.get("POSTGRES_HOST"),
+            "PORT": environment.get("POSTGRES_PORT"),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
+    }
 
 
 # Password validation
@@ -114,9 +140,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-gb"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/London"
 
 USE_I18N = True
 
@@ -159,7 +185,7 @@ STORAGES = {
 
 # Wagtail settings
 
-WAGTAIL_SITE_NAME = "app"
+WAGTAIL_SITE_NAME = environment.get("WAGTAIL_SITE_NAME", "Local Host")
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
@@ -171,7 +197,9 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = "http://example.com"
+WAGTAILADMIN_BASE_URL = environment.get(
+    "WAGTAILADMIN_BASE_URL", "http://localhost:8000"
+)
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
