@@ -3,6 +3,9 @@ services:
     build:
       args:
         DBMODULE: pip install mysqlclient==2.2.4
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       MYSQL_ROOT_PASSWORD: app
       MYSQL_DATABASE: app
