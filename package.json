@@ -4,12 +4,22 @@
   "description": "A starter kit for Wagatil CMS",
   "main": "index.js",
   "scripts": {
-    "styles": "sass --no-source-map --style=compressed --watch app/static_src/scss:app/static_compiled/css",
-    "scripts": "esbuild --bundle --minify --sourcemap --watch app/static_src/js/app.js --outfile=app/static_compiled/js/app.js",
-    "copy": "mkdir -p app/static_compiled/img && cp -r app/static_src/img app/static_compiled",
-    "all": "concurrently \"npm run styles\" \"npm run scripts\" \"npm run copy\"",
-    "build:prod": "npm run styles && npm run scripts && npm run copy",
-    "start": "node start.js"
+    "styles": "sass app/static_src/scss:app/static_compiled/css",
+    "styles:prod": "concurrently \"npm run styles -- --style=compressed\"",
+    "styles:watch": "concurrently \"npm run styles -- --style=expanded --watch\"",
+
+    "scripts": "esbuild --bundle --sourcemap app/static_src/js/app.js --outfile=app/static_compiled/js/app.js",
+    "scripts:prod": "concurrently \"npm run scripts -- --minify\"",
+    "scripts:watch": "concurrently \"npm run scripts -- --watch\"",
+
+    "images": "node scripts/images.js",
+
+    "clean": "rm -rf app/static_compiled",
+
+    "server": "node scripts/server.js",
+
+    "build": "concurrently \"npm run clean\" \"npm run styles:prod\" \"npm run scripts:prod\" \"npm run images\"",
+    "start": "concurrently \"npm run clean\" \"npm run styles:watch\" \"npm run scripts:watch\" \"npm run images\" \"npm run server\""
   },
   "repository": {
     "type": "git",
@@ -29,6 +39,7 @@
     "browser-sync": "^3.0.3",
     "concurrently": "^9.0.1",
     "esbuild": "^0.24.0",
-    "sass": "^1.79.4"
+    "sass": "1.76",
+    "sharp": "^0.33.5"
   }
 }
