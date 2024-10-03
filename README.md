@@ -37,4 +37,4 @@ The Wagtail admin interface will be available at [http://localhost:8000/admin](h
 
 ## Choose a databse (optional)
 
-By default, the project uses PostgreSQL. If you'd like to use Musql instead uncomment the MySQL section in the Makefile and comment out the PostgreSQL section.
+By default, the project uses PostgreSQL. If you'd like to use MySQL or Sqlite3 instead uncomment the required `DC` variable in the Makefile and comment out the others.
