@@ -17,7 +17,6 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 environment = os.environ.copy()
-print(environment)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = environment.get("DJANGO_SECRET_KEY", None)
@@ -158,7 +157,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_DIR, "static"),
+    os.path.join(PROJECT_DIR, "static_compiled"),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
