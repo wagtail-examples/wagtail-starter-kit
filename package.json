@@ -1,0 +1,34 @@
+{
+  "name": "wagtail-starter-kit",
+  "version": "1.0.0",
+  "description": "A starter kit for Wagatil CMS",
+  "main": "index.js",
+  "scripts": {
+    "styles": "sass --no-source-map --style=compressed --watch app/static_src/scss:app/static_compiled/css",
+    "scripts": "esbuild --bundle --minify --sourcemap --watch app/static_src/js/app.js --outfile=app/static_compiled/js/app.js",
+    "copy": "mkdir -p app/static_compiled/img && cp -r app/static_src/img app/static_compiled",
+    "all": "concurrently \"npm run styles\" \"npm run scripts\" \"npm run copy\"",
+    "build:prod": "npm run styles && npm run scripts && npm run copy",
+    "start": "node start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wagtail-examples/wagtail-starter-kit.git"
+  },
+  "keywords": [
+    "wagtail"
+  ],
+  "author": "Nick Moreton <nickmoreton@me.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wagtail-examples/wagtail-starter-kit/issues"
+  },
+  "homepage": "https://github.com/wagtail-examples/wagtail-starter-kit#readme",
+  "devDependencies": {
+    "@picocss/pico": "^2.0.6",
+    "browser-sync": "^3.0.3",
+    "concurrently": "^9.0.1",
+    "esbuild": "^0.24.0",
+    "sass": "^1.79.4"
+  }
+}
