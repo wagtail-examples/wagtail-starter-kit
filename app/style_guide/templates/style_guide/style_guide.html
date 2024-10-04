@@ -14,7 +14,18 @@
       gap: 2rem;
     }
 
+    aside.fixed {
+      position: relative;
+    }
 
+    aside.fixed article {
+      position: sticky;
+      top: 2rem;
+    }
+
+  }
+  pre code {
+    white-space: pre-wrap;
   }
 </style>
 {% endblock %}
@@ -27,7 +38,7 @@
   <!-- Main -->
   <main class="container styleguide-grid">
 
-    <aside>
+    <aside role="sidebar">
       <article>
         <h3>Menu</h3>
         <nav>
@@ -69,6 +80,7 @@
     </aside>
 
     <section>
+      {% include "style_guide/includes/theme_switcher.html" %}
 
       {% include "style_guide/includes/preview.html" %}
 
@@ -261,5 +273,21 @@ const getScrollbarWidth = () => {
 const isScrollbarVisible = () => {
   return document.body.scrollHeight > screen.height;
 };
+</script>
+<script>
+    /*
+ * Side Navigation
+ *
+ */
+const aside = document.querySelector("aside[role='sidebar']");
+const header = document.querySelector("header[role='topbar']");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > header.clientHeight) {
+    aside.classList.add("fixed");
+  } else {
+    aside.classList.remove("fixed");
+  }
+});
 </script>
 {% endblock %}
