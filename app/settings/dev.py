@@ -11,6 +11,7 @@ ALLOWED_HOSTS = ["*"]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# Remove if not required
 INSTALLED_APPS += ["app.style_guide"]  # noqa F405
 
 
