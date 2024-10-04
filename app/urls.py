@@ -5,7 +5,6 @@ from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
-from app.home import views as home_views
 from app.search import views as search_views
 
 urlpatterns = [
@@ -14,7 +13,7 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
     # Kitchen sink view for testing
-    path("kitchen-sink/", home_views.kitchen_sink_view, name="kitchen_sink"),
+    path("style-guide/", include("app.style_guide.urls")),
 ]
 
 
