@@ -9,190 +9,95 @@
 Delete the line below if you're just getting started and want to remove the welcome screen!
 {% endcomment %}
 <style>
-    html {
-    box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: inherit;
-}
-
-body {
-    max-width: 960px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: 0 15px;
-    color: #231f20;
-    font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-    line-height: 1.25;
-}
-
-a {
-    background-color: transparent;
-    color: #308282;
-    text-decoration: underline;
-}
-
-a:hover {
-    color: #ea1b10;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-p,
-ul {
-    padding: 0;
-    margin: 0;
-    font-weight: 400;
-}
-
-svg:not(:root) {
-    overflow: hidden;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e6e6e6;
-}
-
-.logo {
-    width: 150px;
-    margin-inline-end: 20px;
-}
-
-.logo a {
-    display: block;
-}
-
-.figure-logo {
-    max-width: 150px;
-    max-height: 55.1px;
-}
-
-.release-notes {
-    font-size: 14px;
-}
-
-.main {
-    padding: 40px 0;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.figure-space {
-    max-width: 265px;
-}
-
-@keyframes pos {
+    body {
+        background-color: var(--pico-color-sand-50);
+        min-height: 100vh;
+    }
+    header .welcome-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+    a[role="logo"] svg{
+        width: 130px;
+    }
+    @keyframes pos {
     0%, 100% {
         transform: rotate(-6deg);
     }
     50% {
         transform: rotate(6deg);
     }
-}
-
-.egg {
-    fill: #43b1b0;
-    animation: pos 3s ease infinite;
-    transform: translateY(50px);
-    transform-origin: 50% 80%;
-}
-
-.main-text {
-    max-width: 400px;
-    margin: 5px auto;
-}
-
-.main-text h1 {
-    font-size: 22px;
-}
-
-.main-text p {
-    margin: 15px auto 0;
-}
-
-.footer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    border-top: 1px solid #e6e6e6;
-    padding: 10px;
-}
-
-.option {
-    display: block;
-    padding: 10px 10px 10px 34px;
-    position: relative;
-    text-decoration: none;
-}
-
-.option svg {
-    width: 24px;
-    height: 24px;
-    fill: gray;
-    border: 1px solid #d9d9d9;
-    padding: 5px;
-    border-radius: 100%;
-    top: 10px;
-    inset-inline-start: 0;
-    position: absolute;
-}
-
-.option h2 {
-    font-size: 19px;
-    text-decoration: underline;
-}
-
-.option p {
-    padding-top: 3px;
-    color: #231f20;
-    font-size: 15px;
-    font-weight: 300;
-}
-
-@media (max-width: 996px) {
-    body {
-        max-width: 780px;
-    }
-}
-
-@media (max-width: 767px) {
-    .option {
-        flex: 0 0 50%;
-    }
-}
-
-@media (max-width: 599px) {
-    .main {
-        padding: 20px 0;
     }
 
-    .figure-space {
-        max-width: 200px;
+    svg[role="egg"] {
+        color: var(--pico-primary);
+        animation: pos 3s ease infinite;
+        transform: translateY(50px);
+        transform-origin: 50% 80%;
+    }
+    .egg-banner {
+        text-align: center;
     }
 
-    .footer {
-        display: block;
-        width: 300px;
-        margin: 0 auto;
+    footer.welcome-grid article {
+        text-align: center;
     }
-}
 
-@media (max-width: 360px) {
-    .header-link {
-        max-width: 100px;
+    footer.welcome-grid article h2 {
+        font-size: 1rem;
+        text-decoration: underline;
     }
-}
+
+    footer.welcome-grid article a:hover h2, footer.welcome-grid article a:hover p {
+        color: var(--pico-primary);
+    }
+
+    a[role="card"] svg {
+        width: 4rem;
+    }
+
+    @media screen and (min-width: 768px) {
+        a[role="logo"] svg{
+            width: 150px;
+        }
+        .egg-banner {
+            display: grid;
+            grid-template-columns: 4fr 8fr;
+            gap: 20px;
+            align-items: center;
+            text-align: inherit;
+        }
+    }
+
+    @media screen and (min-width: 1024px) {
+        footer.welcome-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        footer.welcome-grid svg {
+            width: 2rem;
+            color: --var(pico-primary);
+        }
+    }
+
+    @media screen and (min-width: 1280px){
+        footer.welcome-grid article a {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            align-items: center;
+        }
+        footer a[role="card"] svg {
+            width: 3rem;
+        }
+        footer hgroup {
+            text-align: left;
+            margin: 0;
+        }
+    }
 </style>
 {% endblock extra_css %}
 
