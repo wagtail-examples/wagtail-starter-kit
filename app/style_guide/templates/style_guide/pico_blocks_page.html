@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<main class="container">
+    <h1>Testing Content In Blocks</h1>
+    <hr>
+    {% for block in page.body %}
+        {% if block.block_type == 'accordion' %}
+            {% for item in block.value %}
+            <details{% if item.initially_open %} open{% endif %}>
+                <summary>{{ item.title }}</summary>
+                <article>
+                    {{ item.content }}
+                </article>
+            </details>
+            {% endfor %}
+        {% else %}
+            {% include_block block %}
+        {% endif %}
+    {% endfor %}
+</main>
+{% endblock %}
