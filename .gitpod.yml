@@ -5,9 +5,11 @@
 # Learn more from ready-to-use templates: https://www.gitpod.io/docs/introduction/getting-started/quickstart
 
 tasks:
-  - init: make && npm install && npm run build
-    command: |
+  - init: |
       make build
       make up
+      npm install
+      npm run build
+    command: |
       make run
       npm run start
