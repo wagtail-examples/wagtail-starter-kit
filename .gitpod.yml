@@ -12,4 +12,3 @@ tasks:
       make up
       make migrate
       make run
-      npm run start
