@@ -7,6 +7,7 @@
 tasks:
   - init: |
       make build
+      make migrate
       make up
       npm install
       npm run build
