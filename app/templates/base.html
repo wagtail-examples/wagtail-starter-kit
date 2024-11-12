@@ -33,7 +33,7 @@
 
     <body class="{% block body_class %}{% endblock %}">
         {% wagtailuserbar %}
-
+        {% get_blog_index_url as blog_index_url %}
         <header class="container">
             <nav>
                 <ul>
@@ -43,7 +43,11 @@
                 </ul>
                 <ul>
                     <li>
+                        {% if blog_index_url %}
                         <a href="{% get_blog_index_url %}" role="button">View Blog</a>
+                        {% else %}
+                        <a href="/admin" role="button">Create and publish a BlogIndex page</a>
+                        {% endif %}
                     </li>
                 </ul>
             </nav>

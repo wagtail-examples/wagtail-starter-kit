@@ -7,4 +7,6 @@ register = template.Library()
 
 @register.simple_tag
 def get_blog_index_url():
-    return BlogIndexPage.objects.first().url
+    blog_index = BlogIndexPage.objects.live().first()
+    if blog_index:
+        return blog_index.url
