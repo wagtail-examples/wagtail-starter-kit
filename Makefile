@@ -28,7 +28,7 @@ help:
 	@echo ""
 	@echo "Miscellaneous"
 	@echo " quickstart     Build, start, and run the containers (npm & docker)"
-	@echo " requirements   Export requirements.txt (poetry)"
+	@echo " requirements   Export requirements.txt (uv)"
 	@echo " clean          Clean up generated files and folders (node_modules, static, media, etc.)"
 	@echo " frontend       Build the frontend (npm)"
 	@echo " start          Build the front end and start local development server (npm)"
@@ -109,7 +109,7 @@ start:
 # Export requirements.txt
 .PHONY: requirements
 requirements:
-	poetry export -f requirements.txt --output requirements.txt  --without-urls --without-hashes
+	uv export --no-hashes --no-dev --output-file requirements.txt --locked
 
 # Clean up
 .PHONY: clean

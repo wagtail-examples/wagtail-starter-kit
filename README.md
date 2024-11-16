@@ -27,7 +27,7 @@ Optional:
 - [Make](https://www.gnu.org/software/make/) (optional, for running commands)
 - [NVM](https://github.com/nvm-sh/nvm) (optional, for managing Node versions)
 - [pre-commit](https://pre-commit.com/) (optional, for running code checks)
-- [poetry](https://python-poetry.org/) (optional, for managing Python dependencies)
+- [UV](https://github.com/astral-sh/uv) (optional, for managing Python dependencies)
 
 ## Getting started
 
