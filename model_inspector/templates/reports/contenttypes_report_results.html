@@ -1,0 +1,48 @@
+{% extends 'wagtailadmin/reports/base_report_results.html' %}
+{% load i18n wagtailadmin_tags %}
+
+{% block results %}
+<table class="listing {% block table_classname %}{% endblock %}">
+    <col width="25%" />
+    <col width="25%" />
+    <col />
+    <col />
+    <thead>
+        <tr class="table-headers">
+            <th>{% trans 'App Label' %}</th>
+            <th>{% trans 'Model Name' %}</th>
+            <th>MODEL_INSPECTOR_CONTENT_TYPES_EXCLUDE - entry</th>
+            <th>{% trans 'Actions' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contenttype in contenttypes %}
+        <tr class="{% block page_row_classname %}{% endblock %}">
+            <td valign="top" data-listing-page-title>
+                {{ contenttype.app_label }}
+            </td>
+            <td valign="top">
+                {{ contenttype.model }}
+            </td>
+            <td valign="top">
+                <code>("{{ contenttype.app_label }}", "{{ contenttype.model }}")</code>
+            </td>
+            <td>
+                <button class="button button-small bicolor button--icon" type="button" data-model-inspector-copy>
+                    <span class="icon-wrapper">
+                        <svg class="icon icon-copy icon" aria-hidden="true">
+                            <use href="#icon-copy"></use>
+                        </svg>
+                    </span>
+                    <span>{% trans 'Copy to clipboard' %}</span>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block no_results_message %}
+    <p>No contenttypes found.</p>
+{% endblock %}
