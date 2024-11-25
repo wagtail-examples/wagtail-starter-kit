@@ -1,8 +1,7 @@
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
-
-from wagtail.admin.menu import AdminOnlyMenuItem
 from wagtail import hooks
+from wagtail.admin.menu import AdminOnlyMenuItem
 
 from .views import ContenttypesReportView
 
@@ -10,10 +9,10 @@ from .views import ContenttypesReportView
 @hooks.register("register_reports_menu_item")
 def register_unpublished_changes_report_menu_item():
     return AdminOnlyMenuItem(
-        "Contentypes",
+        "Content Types",
         reverse("contenttypes_report"),
         icon_name=ContenttypesReportView.header_icon,
-        order=700,
+        order=9999,
     )
 
 
