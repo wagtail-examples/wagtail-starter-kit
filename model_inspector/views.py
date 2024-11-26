@@ -7,8 +7,13 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.views.reports import ReportView
+from wagtail.contrib.forms.models import FormSubmission
+from wagtail.contrib.redirects.models import Redirect
+from wagtail.documents.models import Document
+from wagtail.images.models import Image
 from wagtail.models import Collection, Page, Site, Workflow, WorkflowTask
 from wagtail.snippets.models import get_snippet_models
+from wagtail.users.models import UserProfile
 
 exclude_app_model = [
     ("wagtailcore", "page"),
@@ -28,7 +33,7 @@ exclude_app_model = [
     ("wagtailcore", "pageviewrestriction"),
     ("wagtailcore", "workflowpage"),
     ("wagtailcore", "workflowcontenttype"),
-    # ("wagtailcore", "workflowtask"),
+    ("wagtailcore", "workflowtask"),
     ("wagtailcore", "task"),
     # ("wagtailcore", "workflow"),
     ("wagtailcore", "workflowstate"),
@@ -39,10 +44,11 @@ exclude_app_model = [
     ("wagtailcore", "pagesubscription"),
     # ("wagtaildocs", "document"),
     # ("wagtailimages", "image"),
-    # ("wagtailforms", "formsubmission"),
+    ("wagtailforms", "formsubmission"),
+    # ("wagtailforms", "formfield"),
     # ("wagtailredirects", "redirect"),
     ("wagtailembeds", "embed"),
-    # ("wagtailusers", "userprofile"),
+    ("wagtailusers", "userprofile"),
     ("wagtailimages", "rendition"),
     ("wagtailsearch", "indexentry"),
     ("wagtailadmin", "editingsession"),
@@ -56,13 +62,17 @@ exclude_app_model = [
     ("sessions", "session"),
 ]
 
+exclude_app_model += [
+    ("forms", "formfield"),
+]
+
 
 class AdminURLFinder(AdminURLFinder):
     def get_edit_url(self, instance):
         try:
             return super().get_edit_url(instance)
         except AttributeError:
-            return None
+            return instance.get_edit_url()
 
 
 admin_url_finder = AdminURLFinder()
@@ -136,10 +146,10 @@ class ContenttypesReportView(ReportView):
         ctx = super().get_context_data(*args, **kwargs)
 
         for contenttype in ctx["object_list"]:
-            # wagtail pages
-            if self.is_page_model(contenttype):
-                first_instance = contenttype.model_class().objects.live().first()
-                self.generate_urls_for_report_view(contenttype, first_instance, "page")
+            # # wagtail pages
+            # if self.is_page_model(contenttype):
+            #     first_instance = contenttype.model_class().objects.live().first()
+            #     self.generate_urls_for_report_view(contenttype, first_instance, "page")
 
             # wagtail snippets
             if self.is_snippet_model(contenttype):
@@ -148,30 +158,69 @@ class ContenttypesReportView(ReportView):
                     self.generate_urls_for_report_view(contenttype, instance, "snippet")
 
             # collections
-            if self.is_collection_model(contenttype):
+            elif self.is_collection_model(contenttype):
                 first_instance = Collection.objects.first().get_first_child()
                 self.generate_urls_for_report_view(
                     contenttype, first_instance, "collection"
                 )
 
             # sites
-            if self.is_site_model(contenttype):
+            elif self.is_site_model(contenttype):
                 first_instance = Site.objects.first()
                 self.generate_urls_for_report_view(contenttype, first_instance, "site")
 
             # workflows
-            if self.is_workflow_model(contenttype):
+            elif self.is_workflow_model(contenttype):
                 first_instance = contenttype.model_class().objects.first()
                 self.generate_urls_for_report_view(
                     contenttype, first_instance, "workflow"
                 )
 
             # workflow tasks
-            if self.is_workflowtask_model(contenttype):
+            elif self.is_workflowtask_model(contenttype):
                 first_instance = contenttype.model_class().objects.first()
                 self.generate_urls_for_report_view(
                     contenttype, first_instance, "workflowtask"
                 )
+
+            # documents
+            elif self.is_document_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "document"
+                )
+
+            # form submissions
+            elif self.is_formsubmission_model(contenttype):
+                first_instance = contenttype.model
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "formsubmission"
+                )
+
+            # images
+            elif self.is_image_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(contenttype, first_instance, "image")
+
+            # redirects
+            elif self.is_redirect_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "redirect"
+                )
+
+            # users
+            elif self.is_user_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "userprofile"
+                )
+
+            # remaining models
+            else:
+                # print(contenttype.model_class())
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(contenttype, first_instance, "page")
 
         return ctx
 
@@ -188,6 +237,17 @@ class ContenttypesReportView(ReportView):
         elif type == "workflow":
             contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
         elif type == "workflowtask":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "document":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "image":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "redirect":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "userprofile":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "formsubmission":
+            print(first_instance)
             contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
 
     def is_page_model(self, contenttype):
@@ -207,6 +267,21 @@ class ContenttypesReportView(ReportView):
 
     def is_workflowtask_model(self, contenttype):
         return contenttype.model_class() == WorkflowTask
+
+    def is_document_model(self, contenttype):
+        return contenttype.model_class() == Document
+
+    def is_image_model(self, contenttype):
+        return contenttype.model_class() == Image
+
+    def is_redirect_model(self, contenttype):
+        return contenttype.model_class() == Redirect
+
+    def is_user_model(self, contenttype):
+        return contenttype.model_class() == UserProfile
+
+    def is_formsubmission_model(self, contenttype):
+        return contenttype.model_class() == FormSubmission
 
     def get_queryset(self):
         qs = _get_contenttypes()
