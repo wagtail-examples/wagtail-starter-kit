@@ -50,6 +50,14 @@
                         </svg>
                     </span>Front
                 </a>
+                {% else %}
+                <a href="#" class="button button-small button-secondary bicolor button--icon" type="button" disabled>
+                    <span class="icon-wrapper">
+                        <svg class="icon icon-link-external icon" aria-hidden="true">
+                            <use href="#icon-link-external"></use>
+                        </svg>
+                    </span>Not Found
+                </a>
                 {% endif %}
             </td>
             <td>
@@ -60,6 +68,14 @@
                             <use href="#icon-link-external"></use>
                         </svg>
                     </span>Admin Edit
+                </a>
+                {% else %}
+                <a href="#" class="button button-small button-secondary bicolor button--icon" type="button" disabled>
+                    <span class="icon-wrapper">
+                        <svg class="icon icon-link-external icon" aria-hidden="true">
+                            <use href="#icon-link-external"></use>
+                        </svg>
+                    </span>Not Found
                 </a>
                 {% endif %}
             </td>
