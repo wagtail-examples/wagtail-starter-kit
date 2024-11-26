@@ -4,8 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple
 from django.utils.translation import gettext_lazy as _
+from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.views.reports import ReportView
+from wagtail.models import Page
 
 exclude_app_model = [
     ("wagtailcore", "page"),
@@ -52,6 +54,17 @@ exclude_app_model = [
     ("contenttypes", "contenttype"),
     ("sessions", "session"),
 ]
+
+
+class AdminURLFinder(AdminURLFinder):
+    def get_edit_url(self, instance):
+        try:
+            return super().get_edit_url(instance)
+        except AttributeError:
+            return None
+
+
+admin_url_finder = AdminURLFinder()
 
 
 def _get_contenttypes():
@@ -117,6 +130,31 @@ class ContenttypesReportView(ReportView):
         "app_label",
         "model",
     ]
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        for ct in ctx["object_list"]:
+            # wagtail pages
+            if issubclass(ct.model_class(), Page):
+                first_instance = ct.model_class().objects.live().first()
+                # get the frontend url for the content type
+                ct.frontend_url = None
+                try:
+                    ct.frontend_url = first_instance.get_url()
+                except AttributeError:
+                    pass
+            else:
+                first_instance = ct.model_class().objects.first()
+
+            # get the admin edit url for the content type
+            ct.admin_edit_url = None
+            try:
+                ct.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+            except AttributeError:
+                pass
+
+        return ctx
 
     def get_queryset(self):
         qs = _get_contenttypes()

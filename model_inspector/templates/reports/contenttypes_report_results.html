@@ -3,8 +3,10 @@
 
 {% block results %}
 <table class="listing {% block table_classname %}{% endblock %}">
-    <col width="25%" />
-    <col width="25%" />
+    <col />
+    <col />
+    <col />
+    <col />
     <col />
     <col />
     <thead>
@@ -13,6 +15,8 @@
             <th>{% trans 'Model Name' %}</th>
             <th>MODEL_INSPECTOR_CONTENT_TYPES_EXCLUDE - entry</th>
             <th>{% trans 'Actions' %}</th>
+            <th>Front</th>
+            <th>Admin Edit</th>
         </tr>
     </thead>
     <tbody>
@@ -37,6 +41,28 @@
                     <span>{% trans 'Copy to clipboard' %}</span>
                 </button>
             </td>
+            <td>
+                {% if contenttype.frontend_url %}
+                <a href="{{ contenttype.frontend_url }}" class="button button-small bicolor button--icon" type="button">
+                    <span class="icon-wrapper">
+                        <svg class="icon icon-link-external icon" aria-hidden="true">
+                            <use href="#icon-link-external"></use>
+                        </svg>
+                    </span>Front
+                </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if contenttype.admin_edit_url %}
+                <a href="{{ contenttype.admin_edit_url }}" class="button button-small bicolor button--icon" type="button">
+                    <span class="icon-wrapper">
+                        <svg class="icon icon-link-external icon" aria-hidden="true">
+                            <use href="#icon-link-external"></use>
+                        </svg>
+                    </span>Admin Edit
+                </a>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -44,5 +70,5 @@
 {% endblock %}
 
 {% block no_results_message %}
-    <p>No contenttypes found.</p>
+<p>No contenttypes found.</p>
 {% endblock %}
