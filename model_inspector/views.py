@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.views.reports import ReportView
-from wagtail.models import Page
+from wagtail.models import Collection, Page, Site, Workflow, WorkflowTask
+from wagtail.snippets.models import get_snippet_models
 
 exclude_app_model = [
     ("wagtailcore", "page"),
@@ -134,27 +135,78 @@ class ContenttypesReportView(ReportView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
 
-        for ct in ctx["object_list"]:
+        for contenttype in ctx["object_list"]:
             # wagtail pages
-            if issubclass(ct.model_class(), Page):
-                first_instance = ct.model_class().objects.live().first()
-                # get the frontend url for the content type
-                ct.frontend_url = None
-                try:
-                    ct.frontend_url = first_instance.get_url()
-                except AttributeError:
-                    pass
-            else:
-                first_instance = ct.model_class().objects.first()
+            if self.is_page_model(contenttype):
+                first_instance = contenttype.model_class().objects.live().first()
+                self.generate_urls_for_report_view(contenttype, first_instance, "page")
 
-            # get the admin edit url for the content type
-            ct.admin_edit_url = None
-            try:
-                ct.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-            except AttributeError:
-                pass
+            # wagtail snippets
+            if self.is_snippet_model(contenttype):
+                instance = contenttype.model_class().objects.first()
+                if instance:
+                    self.generate_urls_for_report_view(contenttype, instance, "snippet")
+
+            # collections
+            if self.is_collection_model(contenttype):
+                first_instance = Collection.objects.first().get_first_child()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "collection"
+                )
+
+            # sites
+            if self.is_site_model(contenttype):
+                first_instance = Site.objects.first()
+                self.generate_urls_for_report_view(contenttype, first_instance, "site")
+
+            # workflows
+            if self.is_workflow_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "workflow"
+                )
+
+            # workflow tasks
+            if self.is_workflowtask_model(contenttype):
+                first_instance = contenttype.model_class().objects.first()
+                self.generate_urls_for_report_view(
+                    contenttype, first_instance, "workflowtask"
+                )
 
         return ctx
+
+    def generate_urls_for_report_view(self, contenttype, first_instance, type=None):
+        if type == "page":
+            contenttype.frontend_url = first_instance.get_url()
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "snippet":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "collection":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "site":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "workflow":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        elif type == "workflowtask":
+            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+
+    def is_page_model(self, contenttype):
+        return issubclass(contenttype.model_class(), Page)
+
+    def is_snippet_model(self, contenttype):
+        return contenttype.model_class() in get_snippet_models()
+
+    def is_collection_model(self, contenttype):
+        return contenttype.model_class() == Collection
+
+    def is_site_model(self, contenttype):
+        return contenttype.model_class() == Site
+
+    def is_workflow_model(self, contenttype):
+        return contenttype.model_class() == Workflow
+
+    def is_workflowtask_model(self, contenttype):
+        return contenttype.model_class() == WorkflowTask
 
     def get_queryset(self):
         qs = _get_contenttypes()
