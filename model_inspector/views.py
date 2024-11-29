@@ -132,7 +132,10 @@ class ContenttypesReportView(ReportView):
 
     def get_queryset(self):
         qs = _get_contenttypes()
-        # qs = ContentType.objects.all().order_by("app_label", "model")
+
+        ordering = self.request.GET.get("ordering")
+        if ordering:
+            qs = qs.order_by(ordering)
 
         search_query = self.request.GET.get("q")
         if search_query:
