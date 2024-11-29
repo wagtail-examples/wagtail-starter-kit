@@ -14,10 +14,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Remove if not required
 INSTALLED_APPS += ["app.style_guide", "wagtail.contrib.styleguide"]  # noqa F405
 
-# MODEL_INSPECTOR_CONTENT_TYPES_EXCLUDE = [
-#     # ("wagtailadmin", "admin"),
-#     # ("contenttypes", "contenttype"),
-# ]
+MODEL_INSPECTOR_EXCLUDE = []
 
 try:
     from .local import *  # noqa

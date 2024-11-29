@@ -7,73 +7,42 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.views.reports import ReportView
-from wagtail.contrib.forms.models import FormSubmission
-from wagtail.contrib.redirects.models import Redirect
-from wagtail.documents.models import Document
-from wagtail.images.models import Image
-from wagtail.models import Collection, Page, Site, Workflow, WorkflowTask
-from wagtail.snippets.models import get_snippet_models
-from wagtail.users.models import UserProfile
 
 exclude_app_model = [
-    ("wagtailcore", "page"),
-    # ("home", "homepage"),
-    ("wagtailadmin", "admin"),
-    ("wagtailcore", "groupapprovaltask"),
-    ("wagtailcore", "locale"),
-    # ("wagtailcore", "site"),
-    ("wagtailcore", "modellogentry"),
-    ("wagtailcore", "collectionviewrestriction"),
-    # ("wagtailcore", "collection"),
-    ("wagtailcore", "groupcollectionpermission"),
-    ("wagtailcore", "uploadedfile"),
-    ("wagtailcore", "referenceindex"),
-    ("wagtailcore", "revision"),
-    ("wagtailcore", "grouppagepermission"),
-    ("wagtailcore", "pageviewrestriction"),
-    ("wagtailcore", "workflowpage"),
-    ("wagtailcore", "workflowcontenttype"),
-    ("wagtailcore", "workflowtask"),
-    ("wagtailcore", "task"),
-    # ("wagtailcore", "workflow"),
-    ("wagtailcore", "workflowstate"),
-    ("wagtailcore", "taskstate"),
-    ("wagtailcore", "pagelogentry"),
-    ("wagtailcore", "comment"),
-    ("wagtailcore", "commentreply"),
-    ("wagtailcore", "pagesubscription"),
-    # ("wagtaildocs", "document"),
-    # ("wagtailimages", "image"),
-    ("wagtailforms", "formsubmission"),
-    # ("wagtailforms", "formfield"),
-    # ("wagtailredirects", "redirect"),
-    ("wagtailembeds", "embed"),
-    ("wagtailusers", "userprofile"),
-    ("wagtailimages", "rendition"),
-    ("wagtailsearch", "indexentry"),
-    ("wagtailadmin", "editingsession"),
-    ("taggit", "tag"),
-    ("taggit", "taggeditem"),
     ("admin", "logentry"),
     ("auth", "permission"),
-    ("auth", "group"),
-    ("auth", "user"),
     ("contenttypes", "contenttype"),
-    ("sessions", "session"),
-]
-
-exclude_app_model += [
     ("forms", "formfield"),
+    ("sessions", "session"),
+    ("taggit", "tag"),
+    ("taggit", "taggeditem"),
+    ("wagtailadmin", "admin"),
+    ("wagtailcore", "collectionviewrestriction"),
+    ("wagtailadmin", "editingsession"),
+    ("wagtailcore", "comment"),
+    ("wagtailcore", "commentreply"),
+    ("wagtailcore", "groupcollectionpermission"),
+    ("wagtailcore", "grouppagepermission"),
+    ("wagtailcore", "locale"),
+    ("wagtailcore", "modellogentry"),
+    ("wagtailcore", "pagelogentry"),
+    ("wagtailcore", "pagesubscription"),
+    ("wagtailcore", "pageviewrestriction"),
+    ("wagtailcore", "referenceindex"),
+    ("wagtailcore", "revision"),
+    ("wagtailcore", "taskstate"),
+    ("wagtailcore", "uploadedfile"),
+    ("wagtailcore", "workflowcontenttype"),
+    ("wagtailcore", "workflowpage"),
+    ("wagtailcore", "workflowstate"),
+    ("wagtailcore", "workflowtask"),
+    ("wagtailembeds", "embed"),
+    ("wagtailforms", "formsubmission"),
+    ("wagtailimages", "rendition"),
+    ("wagtailsearch", "indexentry"),
+    ("wagtailusers", "userprofile"),
+    ("wagtailcore", "page"),
 ]
-
-
-class AdminURLFinder(AdminURLFinder):
-    def get_edit_url(self, instance):
-        try:
-            return super().get_edit_url(instance)
-        except AttributeError:
-            return instance.get_edit_url()
-
 
 admin_url_finder = AdminURLFinder()
 
@@ -81,8 +50,9 @@ admin_url_finder = AdminURLFinder()
 def _get_contenttypes():
     exclude = (
         exclude_app_model
-        if not hasattr(settings, "MODEL_INSPECTOR_CONTENT_TYPES_EXCLUDE")
-        else settings.MODEL_INSPECTOR_CONTENT_TYPES_EXCLUDE
+        if not hasattr(settings, "MODEL_INSPECTOR_EXCLUDE")
+        or not settings.MODEL_INSPECTOR_EXCLUDE
+        else settings.MODEL_INSPECTOR_EXCLUDE
     )
 
     exclude_apps = [app for app, _ in exclude]
@@ -146,145 +116,23 @@ class ContenttypesReportView(ReportView):
         ctx = super().get_context_data(*args, **kwargs)
 
         for contenttype in ctx["object_list"]:
-            # # wagtail pages
-            # if self.is_page_model(contenttype):
-            #     first_instance = contenttype.model_class().objects.live().first()
-            #     self.generate_urls_for_report_view(contenttype, first_instance, "page")
-
-            # wagtail snippets
-            if self.is_snippet_model(contenttype):
-                instance = contenttype.model_class().objects.first()
-                if instance:
-                    self.generate_urls_for_report_view(contenttype, instance, "snippet")
-
-            # collections
-            elif self.is_collection_model(contenttype):
-                first_instance = Collection.objects.first().get_first_child()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "collection"
-                )
-
-            # sites
-            elif self.is_site_model(contenttype):
-                first_instance = Site.objects.first()
-                self.generate_urls_for_report_view(contenttype, first_instance, "site")
-
-            # workflows
-            elif self.is_workflow_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "workflow"
-                )
-
-            # workflow tasks
-            elif self.is_workflowtask_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "workflowtask"
-                )
-
-            # documents
-            elif self.is_document_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "document"
-                )
-
-            # form submissions
-            elif self.is_formsubmission_model(contenttype):
-                first_instance = contenttype.model
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "formsubmission"
-                )
-
-            # images
-            elif self.is_image_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(contenttype, first_instance, "image")
-
-            # redirects
-            elif self.is_redirect_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "redirect"
-                )
-
-            # users
-            elif self.is_user_model(contenttype):
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(
-                    contenttype, first_instance, "userprofile"
-                )
-
-            # remaining models
-            else:
-                # print(contenttype.model_class())
-                first_instance = contenttype.model_class().objects.first()
-                self.generate_urls_for_report_view(contenttype, first_instance, "page")
+            self.generate_urls_for_report_view(
+                contenttype, contenttype.model_class().objects.first()
+            )
 
         return ctx
 
-    def generate_urls_for_report_view(self, contenttype, first_instance, type=None):
-        if type == "page":
+    def generate_urls_for_report_view(self, contenttype, first_instance):
+        try:
             contenttype.frontend_url = first_instance.get_url()
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "snippet":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "collection":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "site":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "workflow":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "workflowtask":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "document":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "image":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "redirect":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "userprofile":
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
-        elif type == "formsubmission":
-            print(first_instance)
-            contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
+        except AttributeError:
+            contenttype.frontend_url = None
 
-    def is_page_model(self, contenttype):
-        return issubclass(contenttype.model_class(), Page)
-
-    def is_snippet_model(self, contenttype):
-        return contenttype.model_class() in get_snippet_models()
-
-    def is_collection_model(self, contenttype):
-        return contenttype.model_class() == Collection
-
-    def is_site_model(self, contenttype):
-        return contenttype.model_class() == Site
-
-    def is_workflow_model(self, contenttype):
-        return contenttype.model_class() == Workflow
-
-    def is_workflowtask_model(self, contenttype):
-        return contenttype.model_class() == WorkflowTask
-
-    def is_document_model(self, contenttype):
-        return contenttype.model_class() == Document
-
-    def is_image_model(self, contenttype):
-        return contenttype.model_class() == Image
-
-    def is_redirect_model(self, contenttype):
-        return contenttype.model_class() == Redirect
-
-    def is_user_model(self, contenttype):
-        return contenttype.model_class() == UserProfile
-
-    def is_formsubmission_model(self, contenttype):
-        return contenttype.model_class() == FormSubmission
+        contenttype.admin_edit_url = admin_url_finder.get_edit_url(first_instance)
 
     def get_queryset(self):
         qs = _get_contenttypes()
+        # qs = ContentType.objects.all().order_by("app_label", "model")
 
         search_query = self.request.GET.get("q")
         if search_query:
