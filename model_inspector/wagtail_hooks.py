@@ -1,7 +1,9 @@
-from django.urls import path, reverse
+from django.urls import include, path, reverse
 from django.utils.safestring import mark_safe
 from wagtail import hooks
 from wagtail.admin.menu import AdminOnlyMenuItem
+
+from model_inspector import urls
 
 from .views import ContenttypesReportView
 
@@ -59,4 +61,21 @@ def editor_js():
         });
         </script>
         """,
+    )
+
+
+@hooks.register("register_admin_urls")
+def register_admin_urls():
+    return [
+        path("model-inspector/", include(urls, namespace="model_inspector")),
+    ]
+
+
+@hooks.register("register_settings_menu_item")
+def register_model_inspector_menu_item():
+    return AdminOnlyMenuItem(
+        "Model Inspector",
+        reverse("model_inspector:index"),
+        icon_name="cog",
+        order=10000,
     )
