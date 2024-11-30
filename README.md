@@ -1,7 +1,8 @@
-# Wagtail Starter Kit (base)
+# Wagtail Starter Kit (blog tutorial)
 
 This is a starter kit for a Wagtail project. It includes a Docker setup for local development, a basic project structure, and some useful tools and libraries.
 
+It's customised from <https://github.com/wagtail-examples/wagtail-starter-kit> to include a few more features taken from the offical [Getting Started Tutorial](https://docs.wagtail.org/en/stable/getting_started/index.html)
 ## Features
 
 - Docker Development Environment
