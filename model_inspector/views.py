@@ -8,6 +8,7 @@ from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views import generic
+from wagtail.models import Collection
 
 admin_url_finder = AdminURLFinder()
 
@@ -78,6 +79,10 @@ class IndexView(generic.IndexView):
             "admin_edit_url",
             label=_("Admin"),
         ),
+        Column(
+            "listing",
+            label=_("Listing"),
+        ),
     ]
 
     def get_base_queryset(self):
@@ -89,6 +94,28 @@ class IndexView(generic.IndexView):
             )
         return ContentType.objects.all()
 
+    def get_listing_url(self, admin_instance_url):
+        # print(admin_instance_url)
+        if not admin_instance_url:
+            return None
+
+        # Split the url parts and get the number of parts
+        # so they can be rejoined to get the listing url
+        parts = admin_instance_url.strip("/").split("/")
+        try:
+            pos = parts.index("edit")
+        except ValueError:
+            pos = len(parts)
+        print(pos)
+        # if not
+        if "edit" in parts:
+            # e.g. /admin/pages/1/edit/ becomes /admin/pages/
+            admin_instance_url = f'/{"/".join(parts[:pos])}/'
+        else:
+            # e.g. /admin/pages/1/ becomes /admin/pages/
+            admin_instance_url = f'/{"/".join(parts[:pos-1])}/'
+        return admin_instance_url
+
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
 
@@ -97,6 +124,12 @@ class IndexView(generic.IndexView):
             secondary_button_class = "button button-small button-secondary"
             primary_button_class = "button button-small button-primary"
 
+            # SPECIAL CASE: Collection
+            if isinstance(instance, Collection):
+                root = Collection.get_first_root_node()
+                instance = root.get_children().first()
+
+            # FRONTEND URL
             try:
                 instance_url = instance.get_url()
                 contenttype.frontend_url = mark_safe(
@@ -107,6 +140,7 @@ class IndexView(generic.IndexView):
                     f'<span class="{secondary_button_class}" disabled>Not available</span>'
                 )
 
+            # ADMIN URL
             admin_instance_url = admin_url_finder.get_edit_url(instance)
             if admin_instance_url:
                 contenttype.admin_edit_url = mark_safe(
@@ -115,6 +149,17 @@ class IndexView(generic.IndexView):
             else:
                 contenttype.admin_edit_url = mark_safe(
                     f'<span class="{secondary_button_class}" disabled>Not available</span>'
+                )
+
+            # LISTING URL
+            listing_instance_url = self.get_listing_url(admin_instance_url)
+            if listing_instance_url:
+                contenttype.listing = mark_safe(
+                    f'<a href="{listing_instance_url}" class="{primary_button_class}">View Admin Listing Page</a>'
+                )
+            else:
+                contenttype.listing = mark_safe(
+                    f'<span class="{secondary_button_class} button_class" disabled>Not available</span>'
                 )
 
             contenttype.exclude = mark_safe(
