@@ -27,6 +27,6 @@ def register_model_inspector_menu_item():
     return AdminOnlyMenuItem(
         "Model Inspector",
         reverse("model_inspector:index"),
-        icon_name="cog",
+        icon_name="crosshairs",
         order=10000,
     )

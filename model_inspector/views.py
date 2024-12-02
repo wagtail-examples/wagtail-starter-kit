@@ -43,9 +43,10 @@ class IndexViewFilterSet(WagtailFilterSet):
 
 
 class IndexView(generic.IndexView):
+    page_title = _("Model Inspector")
     default_ordering = ["app_label", "model"]
     filterset_class = IndexViewFilterSet
-    header_icon = "key"
+    header_icon = "crosshairs"
     index_url_name = "model_inspector:index"
     index_results_url_name = "model_inspector:index_results"
     model = ContentType
