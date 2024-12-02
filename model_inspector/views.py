@@ -1,4 +1,5 @@
 import django_filters
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
@@ -77,6 +78,15 @@ class IndexView(generic.IndexView):
             label=_("Admin"),
         ),
     ]
+
+    def get_base_queryset(self):
+        if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE"):
+            exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
+            return ContentType.objects.exclude(
+                app_label__in=[app_label for app_label, _ in exclude_app_model],
+                model__in=[model for _, model in exclude_app_model],
+            )
+        return ContentType.objects.all()
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)

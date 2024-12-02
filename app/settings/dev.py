@@ -14,7 +14,42 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Remove if not required
 INSTALLED_APPS += ["app.style_guide", "wagtail.contrib.styleguide"]  # noqa F405
 
-MODEL_INSPECTOR_EXCLUDE = []
+MODEL_INSPECTOR_EXCLUDE = [
+    ("admin", "logentry"),
+    ("auth", "group"),
+    ("auth", "permission"),
+    ("contenttypes", "contenttype"),
+    ("forms", "formfield"),
+    ("sessions", "session"),
+    ("taggit", "tag"),
+    ("taggit", "taggeditem"),
+    ("wagtailadmin", "admin"),
+    ("wagtailcore", "collectionviewrestriction"),
+    ("wagtailadmin", "editingsession"),
+    ("wagtailcore", "comment"),
+    ("wagtailcore", "commentreply"),
+    ("wagtailcore", "groupcollectionpermission"),
+    ("wagtailcore", "grouppagepermission"),
+    ("wagtailcore", "locale"),
+    ("wagtailcore", "modellogentry"),
+    ("wagtailcore", "pagelogentry"),
+    ("wagtailcore", "pagesubscription"),
+    ("wagtailcore", "pageviewrestriction"),
+    ("wagtailcore", "referenceindex"),
+    ("wagtailcore", "revision"),
+    ("wagtailcore", "taskstate"),
+    ("wagtailcore", "uploadedfile"),
+    ("wagtailcore", "workflowcontenttype"),
+    ("wagtailcore", "workflowpage"),
+    ("wagtailcore", "workflowstate"),
+    ("wagtailcore", "workflowtask"),
+    ("wagtailembeds", "embed"),
+    ("wagtailforms", "formsubmission"),
+    ("wagtailimages", "rendition"),
+    ("wagtailsearch", "indexentry"),
+    ("wagtailusers", "userprofile"),
+    ("wagtailcore", "page"),
+]
 
 try:
     from .local import *  # noqa
