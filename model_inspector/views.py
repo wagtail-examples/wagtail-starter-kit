@@ -117,8 +117,6 @@ class IndexView(generic.IndexView):
                     f'<span class="{secondary_button_class}" disabled>Not available</span>'
                 )
 
-            code = f'("{contenttype.app_label}", "{contenttype.model}")'
-
             contenttype.exclude = mark_safe(
                 mark_safe(
                     f"""
@@ -132,7 +130,7 @@ class IndexView(generic.IndexView):
                                 <use href="#icon-copy"></use>
                             </svg>
                         </span>
-                        <span class="code">{code}</span>
+                        <span class="code">{f'("{contenttype.app_label}", "{contenttype.model}")'}</span>
                     </button>
                     """
                 )
