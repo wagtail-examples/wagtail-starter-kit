@@ -2,12 +2,14 @@ import django_filters
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CheckboxSelectMultiple
+from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views import generic
+from wagtail.admin.widgets.button import HeaderButton
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
@@ -108,11 +110,48 @@ class IndexView(generic.IndexView):
         Column("frontend_url", label=_("Frontend")),
         Column("listing", label=_("Listing")),
         Column("app_label", label=_("App label"), sort_key="app_label"),
-        Column("exclude", label=_("exclude_app_model - entry")),
+        Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry")),
     ]
 
+    @cached_property
+    def header_buttons(self):
+        buttons = super().header_buttons
+
+        if (
+            hasattr(settings, "MODEL_INSPECTOR_EXCLUDE")
+            and settings.MODEL_INSPECTOR_EXCLUDE
+        ):
+            show_all = self.request.GET.get("show", None) == "all"
+
+            if show_all:
+                label = _("Enable MODEL_INSPECTOR_EXCLUDE")
+                show_all_url = "/admin/model-inspector"
+                icon = "error"
+            else:
+                label = _("Disable MODEL_INSPECTOR_EXCLUDE")
+                show_all_url = "/admin/model-inspector?show=all"
+                icon = "glasses"
+
+            buttons.append(
+                HeaderButton(
+                    label=label,
+                    url=show_all_url,
+                    attrs={"data-show-all": True},
+                    icon_name=icon,
+                )
+            )
+
+        return buttons
+
     def get_base_queryset(self):
-        return base_queryset()
+        # this code ensures that the ordering respects the visiblility of the excluded models
+        if not self.request.GET:
+            return base_queryset()
+        elif self.request.GET.get("ordering") and self.request.GET.get("show") == "all":
+            return super().get_base_queryset()
+        elif self.request.GET.get("ordering"):
+            return base_queryset()
+        return super().get_base_queryset()
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
