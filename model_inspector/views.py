@@ -10,7 +10,15 @@ from wagtail.admin.ui.tables import Column
 from wagtail.admin.views import generic
 from wagtail.models import Collection
 
-admin_url_finder = AdminURLFinder()
+
+class ModelInspectorAdminURLFinder(AdminURLFinder):
+    # TODO: Implement this method and cater for the workflows/settings
+    # def get_edit_url(self, instance):
+    #     return super().get_edit_url(instance)
+    pass
+
+
+admin_url_finder = ModelInspectorAdminURLFinder()
 
 
 class IndexViewFilterSet(WagtailFilterSet):
@@ -58,30 +66,30 @@ class IndexView(generic.IndexView):
 
     columns = [
         Column(
-            "app_label",
-            label=_("App label"),
-            sort_key="app_label",
-        ),
-        Column(
             "model",
             label=_("Model"),
             sort_key="model",
-        ),
-        Column(
-            "exclude",
-            label=_("exclude_app_model - entry"),
-        ),
-        Column(
-            "frontend_url",
-            label=_("Frontend"),
         ),
         Column(
             "admin_edit_url",
             label=_("Admin"),
         ),
         Column(
+            "frontend_url",
+            label=_("Frontend"),
+        ),
+        Column(
             "listing",
             label=_("Listing"),
+        ),
+        Column(
+            "app_label",
+            label=_("App label"),
+            sort_key="app_label",
+        ),
+        Column(
+            "exclude",
+            label=_("exclude_app_model - entry"),
         ),
     ]
 
