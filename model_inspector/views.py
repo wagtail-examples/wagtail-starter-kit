@@ -22,6 +22,7 @@ def base_queryset():
             app_label__in=[app_label for app_label, _ in exclude_app_model],
             model__in=[model for _, model in exclude_app_model],
         )
+
     return ContentType.objects.all()
 
 
@@ -99,63 +100,38 @@ class IndexView(generic.IndexView):
     index_url_name = "model_inspector:index"
     index_results_url_name = "model_inspector:index_results"
     model = ContentType
-    search_fields = [
-        "app_label",
-        "model",
-    ]
+    search_fields = ["app_label", "model"]
 
     columns = [
-        Column(
-            "model",
-            label=_("Model"),
-            sort_key="model",
-        ),
-        Column(
-            "admin_edit_url",
-            label=_("Admin"),
-        ),
-        Column(
-            "frontend_url",
-            label=_("Frontend"),
-        ),
-        Column(
-            "listing",
-            label=_("Listing"),
-        ),
-        Column(
-            "app_label",
-            label=_("App label"),
-            sort_key="app_label",
-        ),
-        Column(
-            "exclude",
-            label=_("exclude_app_model - entry"),
-        ),
+        Column("model", label=_("Model"), sort_key="model"),
+        Column("admin_edit_url", label=_("Admin")),
+        Column("frontend_url", label=_("Frontend")),
+        Column("listing", label=_("Listing")),
+        Column("app_label", label=_("App label"), sort_key="app_label"),
+        Column("exclude", label=_("exclude_app_model - entry")),
     ]
 
     def get_base_queryset(self):
         return base_queryset()
 
     def get_listing_url(self, admin_instance_url):
-        # print(admin_instance_url)
         if not admin_instance_url:
             return None
 
-        # Split the url parts and get the number of parts
-        # so they can be rejoined to get the listing url
+        # Split and rejoin to get the listing url
         parts = admin_instance_url.strip("/").split("/")
         try:
             pos = parts.index("edit")
         except ValueError:
             pos = len(parts)
-        print(pos)
-        # if not
+
         if "edit" in parts:
             # e.g. /admin/pages/1/edit/ becomes /admin/pages/
             admin_instance_url = f'/{"/".join(parts[:pos])}/'
         else:
             # e.g. /admin/pages/1/ becomes /admin/pages/
             admin_instance_url = f'/{"/".join(parts[:pos-1])}/'
+
         return admin_instance_url
 
     def get_context_data(self, *args, **kwargs):
