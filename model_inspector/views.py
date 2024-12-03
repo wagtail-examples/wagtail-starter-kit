@@ -46,7 +46,7 @@ class ModelInspectorAdminURLFinder(AdminURLFinder):
         elif model == Redirect:
             return "/admin/redirects/"
 
-        # Fallback to manipluating the adminedit url parts
+        # Fallback to manipluating the admin edit url parts
         try:
             parts = super().get_edit_url(instance).strip("/").split("/")
             try:
@@ -113,26 +113,6 @@ class IndexView(generic.IndexView):
 
     def get_base_queryset(self):
         return base_queryset()
-
-    def get_listing_url(self, admin_instance_url):
-        if not admin_instance_url:
-            return None
-
-        # Split and rejoin to get the listing url
-        parts = admin_instance_url.strip("/").split("/")
-        try:
-            pos = parts.index("edit")
-        except ValueError:
-            pos = len(parts)
-
-        if "edit" in parts:
-            # e.g. /admin/pages/1/edit/ becomes /admin/pages/
-            admin_instance_url = f'/{"/".join(parts[:pos])}/'
-        else:
-            # e.g. /admin/pages/1/ becomes /admin/pages/
-            admin_instance_url = f'/{"/".join(parts[:pos-1])}/'
-
-        return admin_instance_url
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
