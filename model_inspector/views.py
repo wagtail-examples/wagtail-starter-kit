@@ -14,6 +14,17 @@ from wagtail.images.models import Image
 from wagtail.models import Collection, Task, Workflow
 
 
+def base_queryset():
+    # adding this here so it can be used across the IndexView and the FilterSet
+    if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE"):
+        exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
+        return ContentType.objects.exclude(
+            app_label__in=[app_label for app_label, _ in exclude_app_model],
+            model__in=[model for _, model in exclude_app_model],
+        )
+    return ContentType.objects.all()
+
+
 class ModelInspectorAdminURLFinder(AdminURLFinder):
     def get_listing_url(self, instance):
         if not instance:
@@ -72,11 +83,11 @@ class IndexViewFilterSet(WagtailFilterSet):
         super().__init__(data=data, queryset=queryset, request=request, prefix=prefix)
 
         self.filters["app_label"].extra["choices"] = sorted(
-            {(ct.app_label, ct.app_label) for ct in self.queryset}
+            {(ct.app_label, ct.app_label) for ct in base_queryset()}
         )
 
         self.filters["model"].extra["choices"] = sorted(
-            [(ct.model, ct.model) for ct in self.queryset]
+            [(ct.model, ct.model) for ct in base_queryset()]
         )
 
 
@@ -123,13 +134,7 @@ class IndexView(generic.IndexView):
     ]
 
     def get_base_queryset(self):
-        if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE"):
-            exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
-            return ContentType.objects.exclude(
-                app_label__in=[app_label for app_label, _ in exclude_app_model],
-                model__in=[model for _, model in exclude_app_model],
-            )
-        return ContentType.objects.all()
+        return base_queryset()
 
     def get_listing_url(self, admin_instance_url):
         # print(admin_instance_url)
