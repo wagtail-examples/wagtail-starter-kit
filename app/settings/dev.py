@@ -28,6 +28,7 @@ MODEL_INSPECTOR_EXCLUDE = [
     ("wagtailadmin", "editingsession"),
     ("wagtailcore", "comment"),
     ("wagtailcore", "commentreply"),
+    ("wagtailcore", "groupapprovaltask"),
     ("wagtailcore", "groupcollectionpermission"),
     ("wagtailcore", "grouppagepermission"),
     ("wagtailcore", "locale"),
