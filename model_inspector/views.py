@@ -8,14 +8,43 @@ from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views import generic
-from wagtail.models import Collection
+from wagtail.contrib.redirects.models import Redirect
+from wagtail.documents.models import Document
+from wagtail.images.models import Image
+from wagtail.models import Collection, Task, Workflow
 
 
 class ModelInspectorAdminURLFinder(AdminURLFinder):
-    # TODO: Implement this method and cater for the workflows/settings
-    # def get_edit_url(self, instance):
-    #     return super().get_edit_url(instance)
-    pass
+    def get_listing_url(self, instance):
+        if not instance:
+            return None
+
+        model = type(instance)
+
+        if model == Workflow:
+            return "/admin/workflows/list/"
+        elif model == Task:
+            return "/admin/workflows/tasks/index/"
+        elif model == Collection:
+            return "/admin/collections/"
+        elif model == Document:
+            return "/admin/documents/"
+        elif model == Image:
+            return "/admin/images/"
+        elif model == Redirect:
+            return "/admin/redirects/"
+
+        # Fallback to manipluating the adminedit url parts
+        try:
+            parts = super().get_edit_url(instance).strip("/").split("/")
+            try:
+                pos = parts.index("edit")
+            except ValueError:
+                pos = len(parts)
+
+            return f'/{"/".join(parts[:pos])}/'
+        except AttributeError:
+            return None
 
 
 admin_url_finder = ModelInspectorAdminURLFinder()
@@ -141,33 +170,33 @@ class IndexView(generic.IndexView):
             try:
                 instance_url = instance.get_url()
                 contenttype.frontend_url = mark_safe(
-                    f'<a href="{instance_url}" class="{primary_button_class}">View Frontend Page</a>'
+                    f'<a href="{instance_url}" class="{primary_button_class}">Frontend Page</a>'
                 )
             except AttributeError:
                 contenttype.frontend_url = mark_safe(
-                    f'<span class="{secondary_button_class}" disabled>Not available</span>'
+                    f'<span class="{secondary_button_class}" disabled>Does not exist</span>'
                 )
 
             # ADMIN URL
             admin_instance_url = admin_url_finder.get_edit_url(instance)
             if admin_instance_url:
                 contenttype.admin_edit_url = mark_safe(
-                    f'<a href="{admin_instance_url}" class="{primary_button_class}">View Admin Edit Page</a>'
+                    f'<a href="{admin_instance_url}" class="{primary_button_class}">Edit Page</a>'
                 )
             else:
                 contenttype.admin_edit_url = mark_safe(
-                    f'<span class="{secondary_button_class}" disabled>Not available</span>'
+                    f'<span class="{secondary_button_class}" disabled>Does not exist</span>'
                 )
 
             # LISTING URL
-            listing_instance_url = self.get_listing_url(admin_instance_url)
+            listing_instance_url = admin_url_finder.get_listing_url(instance)
             if listing_instance_url:
                 contenttype.listing = mark_safe(
-                    f'<a href="{listing_instance_url}" class="{primary_button_class}">View Admin Listing Page</a>'
+                    f'<a href="{listing_instance_url}" class="{primary_button_class}">Listing Page</a>'
                 )
             else:
                 contenttype.listing = mark_safe(
-                    f'<span class="{secondary_button_class} button_class" disabled>Not available</span>'
+                    f'<span class="{secondary_button_class} button_class" disabled>Does not exist</span>'
                 )
 
             contenttype.exclude = mark_safe(
