@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.templatetags.static import static
 from django.urls import include, path, reverse
 from django.utils.html import format_html
 from wagtail import hooks
 from wagtail.admin.menu import AdminOnlyMenuItem
+from wagtail.admin.ui.components import Component
 
 from model_inspector import urls
 
@@ -30,3 +32,21 @@ def register_model_inspector_menu_item():
         icon_name="crosshairs",
         order=10000,
     )
+
+
+class WelcomePanel(Component):
+    template_name = "model_inspector/welcome_panel.html"
+    order = 500
+
+    def get_context_data(self, parent_context):
+        ctx = super().get_context_data(parent_context)
+        ctx["settings_present"] = (
+            True if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE") else False
+        )
+
+        return ctx
+
+
+@hooks.register("construct_homepage_panels")
+def add_another_welcome_panel(request, panels):
+    panels.append(WelcomePanel())

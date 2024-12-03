@@ -103,14 +103,15 @@ class IndexView(generic.IndexView):
     index_results_url_name = "model_inspector:index_results"
     model = ContentType
     search_fields = ["app_label", "model"]
+    paginate_by = 20
 
     columns = [
         Column("model", label=_("Model"), sort_key="model"),
-        Column("admin_edit_url", label=_("Admin")),
-        Column("frontend_url", label=_("Frontend")),
-        Column("listing", label=_("Listing")),
+        Column("admin_edit_url", label=_("Admin Page")),
+        Column("frontend_url", label=_("Frontend Page")),
+        Column("listing", label=_("Listing Page")),
         Column("app_label", label=_("App label"), sort_key="app_label"),
-        Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry")),
+        Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry to hide this model")),
     ]
 
     @cached_property
@@ -170,7 +171,7 @@ class IndexView(generic.IndexView):
             try:
                 instance_url = instance.get_url()
                 contenttype.frontend_url = mark_safe(
-                    f'<a href="{instance_url}" class="{primary_button_class}">Frontend Page</a>'
+                    f'<a href="{instance_url}" class="{primary_button_class}">View</a>'
                 )
             except AttributeError:
                 contenttype.frontend_url = mark_safe(
@@ -181,7 +182,7 @@ class IndexView(generic.IndexView):
             admin_instance_url = admin_url_finder.get_edit_url(instance)
             if admin_instance_url:
                 contenttype.admin_edit_url = mark_safe(
-                    f'<a href="{admin_instance_url}" class="{primary_button_class}">Edit Page</a>'
+                    f'<a href="{admin_instance_url}" class="{primary_button_class}">Edit</a>'
                 )
             else:
                 contenttype.admin_edit_url = mark_safe(
@@ -192,7 +193,7 @@ class IndexView(generic.IndexView):
             listing_instance_url = admin_url_finder.get_listing_url(instance)
             if listing_instance_url:
                 contenttype.listing = mark_safe(
-                    f'<a href="{listing_instance_url}" class="{primary_button_class}">Listing Page</a>'
+                    f'<a href="{listing_instance_url}" class="{primary_button_class}">View</a>'
                 )
             else:
                 contenttype.listing = mark_safe(
