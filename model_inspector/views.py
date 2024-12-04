@@ -106,6 +106,7 @@ class IndexView(generic.IndexView):
     paginate_by = 20
 
     columns = [
+        Column("Actions", label=_("Actions")),
         Column("model", label=_("Model"), sort_key="model"),
         Column("admin_edit_url", label=_("Admin Page")),
         Column("frontend_url", label=_("Frontend Page")),
