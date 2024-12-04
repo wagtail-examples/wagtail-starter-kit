@@ -103,14 +103,15 @@ class IndexView(generic.IndexView):
     index_results_url_name = "model_inspector:index_results"
     model = ContentType
     search_fields = ["app_label", "model"]
-    paginate_by = 20
+    paginate_by = 50
+    table_classname = "model-inspector listing"
 
     columns = [
-        Column("Actions", label=_("Actions")),
         Column("model", label=_("Model"), sort_key="model"),
         Column("admin_edit_url", label=_("Admin Page")),
         Column("frontend_url", label=_("Frontend Page")),
         Column("listing", label=_("Listing Page")),
+        Column("actions", label=_("Actions")),
         Column("app_label", label=_("App label"), sort_key="app_label"),
         Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry to hide this model")),
     ]
@@ -158,7 +159,7 @@ class IndexView(generic.IndexView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
 
-        for contenttype in ctx["object_list"]:
+        for id, contenttype in enumerate(ctx["object_list"]):
             instance = contenttype.model_class().objects.first()
             secondary_button_class = "button button-small button-secondary"
             primary_button_class = "button button-small button-primary"
@@ -169,10 +170,19 @@ class IndexView(generic.IndexView):
                 instance = root.get_children().first()
 
             # FRONTEND URL
+            frontend_instance_url = None
+            data_attr_frontend_instance_url = None
             try:
-                instance_url = instance.get_url()
+                frontend_instance_url = instance.get_url()
+                data_attr_frontend_instance_url = (
+                    f'data-frontend-instance-url="{frontend_instance_url}"'
+                )
                 contenttype.frontend_url = mark_safe(
-                    f'<a href="{instance_url}" class="{primary_button_class}">View</a>'
+                    f"""
+                    <a href="{frontend_instance_url}" class="{primary_button_class}" {data_attr_frontend_instance_url}>
+                    View
+                    </a>
+                    """
                 )
             except AttributeError:
                 contenttype.frontend_url = mark_safe(
@@ -181,9 +191,17 @@ class IndexView(generic.IndexView):
 
             # ADMIN URL
             admin_instance_url = admin_url_finder.get_edit_url(instance)
+            data_attr_admin_instance_url = None
             if admin_instance_url:
+                data_attr_admin_instance_url = (
+                    f'data-admin-instance-url="{admin_instance_url}"'
+                )
                 contenttype.admin_edit_url = mark_safe(
-                    f'<a href="{admin_instance_url}" class="{primary_button_class}">Edit</a>'
+                    f"""
+                    <a href="{admin_instance_url}" class="{primary_button_class}" {data_attr_admin_instance_url}>
+                    Edit
+                    </a>
+                    """
                 )
             else:
                 contenttype.admin_edit_url = mark_safe(
@@ -192,13 +210,46 @@ class IndexView(generic.IndexView):
 
             # LISTING URL
             listing_instance_url = admin_url_finder.get_listing_url(instance)
+            data_attr_listing_instance_url = None
             if listing_instance_url:
+                data_attr_listing_instance_url = (
+                    f'data-listing-instance-url="{listing_instance_url}"'
+                )
                 contenttype.listing = mark_safe(
-                    f'<a href="{listing_instance_url}" class="{primary_button_class}">View</a>'
+                    f"""
+                    <a href="{listing_instance_url}" class="{primary_button_class}" {data_attr_listing_instance_url}>
+                    View
+                    </a>
+                    """
                 )
             else:
                 contenttype.listing = mark_safe(
                     f'<span class="{secondary_button_class} button_class" disabled>Does not exist</span>'
+                )
+
+            # Actions
+            if (
+                data_attr_frontend_instance_url
+                or data_attr_admin_instance_url
+                or data_attr_listing_instance_url
+            ):
+                contenttype.actions = mark_safe(
+                    f"""
+                    <button
+                    class="button button-small bicolor button--icon"
+                    aria-label="Test this model"
+                    title="Test this model"
+                    onClick="checkResponses(this)"
+                    {data_attr_frontend_instance_url or ''}
+                    {data_attr_admin_instance_url or ''}
+                    {data_attr_listing_instance_url or ''}>
+                        <span class="icon-wrapper">
+                            <svg class="icon icon-resubmit icon" aria-hidden="true">
+                                <use href="#icon-resubmit"></use>
+                            </svg>
+                        </span>Check
+                    </button>
+                    """
                 )
 
             contenttype.exclude = mark_safe(
