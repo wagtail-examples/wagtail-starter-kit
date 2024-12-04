@@ -1,5 +1,4 @@
 function copyToClipboard(button) {
-    console.log(button.innerText);
 
     const originalCodeSpan = button.querySelector('span.code');
     originalCodeSpan.style.display = 'none';
