@@ -159,10 +159,10 @@ class IndexView(generic.IndexView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
 
-        for id, contenttype in enumerate(ctx["object_list"]):
+        for contenttype in ctx["object_list"]:
             instance = contenttype.model_class().objects.first()
-            secondary_button_class = "button button-small button-secondary"
-            primary_button_class = "button button-small button-primary"
+            # secondary_button_class = "button button-small button-secondary"
+            # primary_button_class = "button button-small button-primary"
 
             # SPECIAL CASE: Collection
             if isinstance(instance, Collection):
@@ -179,14 +179,16 @@ class IndexView(generic.IndexView):
                 )
                 contenttype.frontend_url = mark_safe(
                     f"""
-                    <a href="{frontend_instance_url}" class="{primary_button_class}" {data_attr_frontend_instance_url}>
+                    <a
+                    href="{frontend_instance_url}"
+                    class="button button-small button-secondary">
                     View
                     </a>
                     """
                 )
             except AttributeError:
                 contenttype.frontend_url = mark_safe(
-                    f'<span class="{secondary_button_class}" disabled>Does not exist</span>'
+                    """<span class="button button-small button-secondary" disabled>Does not exist</span>"""
                 )
 
             # ADMIN URL
@@ -198,14 +200,19 @@ class IndexView(generic.IndexView):
                 )
                 contenttype.admin_edit_url = mark_safe(
                     f"""
-                    <a href="{admin_instance_url}" class="{primary_button_class}" {data_attr_admin_instance_url}>
+                    <a
+                    href="{admin_instance_url}"
+                    class="button button-small button-secondary">
                     Edit
                     </a>
                     """
                 )
             else:
                 contenttype.admin_edit_url = mark_safe(
-                    f'<span class="{secondary_button_class}" disabled>Does not exist</span>'
+                    """<span
+                    class="button button-small button-secondary"
+                    disabled>Does not exist
+                    </span>"""
                 )
 
             # LISTING URL
@@ -217,14 +224,16 @@ class IndexView(generic.IndexView):
                 )
                 contenttype.listing = mark_safe(
                     f"""
-                    <a href="{listing_instance_url}" class="{primary_button_class}" {data_attr_listing_instance_url}>
+                    <a
+                    href="{listing_instance_url}"
+                    class="button button-small button-secondary">
                     View
                     </a>
                     """
                 )
             else:
                 contenttype.listing = mark_safe(
-                    f'<span class="{secondary_button_class} button_class" disabled>Does not exist</span>'
+                    """<span class="button button-small button-secondary" disabled>Does not exist</span>"""
                 )
 
             # Actions
@@ -234,15 +243,13 @@ class IndexView(generic.IndexView):
                 or data_attr_listing_instance_url
             ):
                 contenttype.actions = mark_safe(
-                    f"""
+                    """
                     <button
                     class="button button-small bicolor button--icon"
                     aria-label="Test this model"
                     title="Test this model"
                     onClick="checkResponses(this)"
-                    {data_attr_frontend_instance_url or ''}
-                    {data_attr_admin_instance_url or ''}
-                    {data_attr_listing_instance_url or ''}>
+                    >
                         <span class="icon-wrapper">
                             <svg class="icon icon-resubmit icon" aria-hidden="true">
                                 <use href="#icon-resubmit"></use>
@@ -256,9 +263,9 @@ class IndexView(generic.IndexView):
                 mark_safe(
                     f"""
                     <button
+                    data-model-inspector-copy
                     class="button button-small bicolor button--icon"
                     type="button"
-                    data-model-inspector-copy
                     onclick="copyToClipboard(this)">
                         <span class="icon-wrapper">
                             <svg class="icon icon-copy icon" aria-hidden="true">

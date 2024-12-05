@@ -1,84 +1,71 @@
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('check.js loaded');
-    rows = document.querySelectorAll('div#listing-results tbody tr');
-    rows.forEach(function(row) {
-        const cells = row.querySelectorAll('td');
+function checkResponses(button) {
+    const row = button.closest("tr");
+    const cells = row.querySelectorAll("td");
 
-        let admin_edit_url = null;
-        let front_end_url = null;
-        let listing_url = null;
+    const adminButton = cells[1].querySelector("a");
+    const frontendButton = cells[2].querySelector("a");
+    const listingButton = cells[3].querySelector("a");
 
-        /**
-         * If a cell has an abchor link, get the href attribute value
-         */
-        if (cells[1].querySelector('a')) {
-            admin_edit_url = cells[1].querySelector('a').href
+    let adminUrl;
+    let frontUrl;
+    let listingUrl;
+
+    if(!adminButton && !frontendButton && !listingButton) {
+        return;
+    }
+
+    if (adminButton) {
+        adminButton.classList.remove("button-primary");
+        adminButton.classList.remove("serious");
+        adminButton.classList.add("button-secondary");
+        adminUrl = adminButton.href;
+    }
+
+    if (frontendButton) {
+        frontendButton.classList.remove("button-primary");
+        frontendButton.classList.remove("serious");
+        frontendButton.classList.add("button-secondary");
+        frontUrl = frontendButton.href;
+    }
+
+    if (listingButton) {
+        listingButton.classList.remove("button-primary");
+        listingButton.classList.remove("serious");
+        listingButton.classList.add("button-secondary");
+        listingUrl = listingButton.href;
+    }
+
+    const checks = [
+        {
+            url: adminUrl,
+            button: adminButton,
+        },
+        {
+            url: frontUrl,
+            button: frontendButton,
+        },
+        {
+            url: listingUrl,
+            button: listingButton,
         }
-        if (cells[2].querySelector('a')) {
-            front_end_url = cells[2].querySelector('a').href;
+    ]
+
+    checks.forEach(check => {
+        if (check.url) {
+            fetch(check.url)
+                .then(response => {
+                    if (response.ok) {
+                        check.button.classList.add("button-primary");
+                        check.button.classList.remove("button-secondary");
+                    } else {
+                        check.button.classList.add("serious");
+                        check.button.classList.remove("button-secondary");
+                    }
+                })
+                .catch(error => {
+                    check.button.classList.add("serious");
+                    check.button.classList.remove("button-secondary");
+                });
         }
-
-        if (cells[3].querySelector('a')) {
-            listing_url = cells[3].querySelector('a').href;
-        }
-
-        const check = document.createElement('button');
-        check.innerHTML = 'Check';
-        check.setAttribute('class', 'button button-small button-secondary');
-
-        check.addEventListener('click', function() {
-            if (admin_edit_url) {
-                fetch(admin_edit_url)
-                    .then(response => {
-                        if (response.ok) {
-                            check.setAttribute('class', 'button button-small button-primary');
-                            check.innerHTML = 'Success';
-                        } else {
-                            check.setAttribute('class', 'button button-small no');
-                            check.innerHTML = 'Failed';
-                        }
-                    })
-                    .catch(error => {
-                        check.setAttribute('class', 'button button-small no');
-                        check.innerHTML = 'Error';
-                    });
-            }
-
-            if (front_end_url) {
-                fetch(front_end_url)
-                    .then(response => {
-                        if (response.ok) {
-                            check.setAttribute('class', 'button button-small button-primary');
-                            check.innerHTML = 'Success';
-                        } else {
-                            check.setAttribute('class', 'button button-small no');
-                            check.innerHTML = 'Failed';
-                        }
-                    })
-                    .catch(error => {
-                        check.setAttribute('class', 'button button-small no');
-                        check.innerHTML = 'Error';
-                    });
-            }
-
-            if (listing_url) {
-                fetch(listing_url)
-                    .then(response => {
-                        if (response.ok) {
-                            check.setAttribute('class', 'button button-small button-primary');
-                            check.innerHTML = 'Success';
-                        } else {
-                            check.setAttribute('class', 'button button-small no');
-                            check.innerHTML = 'Failed';
-                        }
-                    })
-                    .catch(error => {
-                        check.setAttribute('class', 'button button-small no');
-                        check.innerHTML = 'Error';
-                    });
-            }
-        });
-
-        cells[0].insertAdjacentElement('afterbegin', check);
     });
-});
+}
