@@ -2,8 +2,8 @@ import django_filters
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CheckboxSelectMultiple
+from django.template.loader import render_to_string
 from django.utils.functional import cached_property
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.admin.filters import WagtailFilterSet
@@ -147,7 +147,7 @@ class IndexView(generic.IndexView):
         return buttons
 
     def get_base_queryset(self):
-        # this code ensures that the ordering respects the visiblility of the excluded models
+        # ensure that the ordering respects the visiblility of the excluded models
         if not self.request.GET:
             return base_queryset()
         elif self.request.GET.get("ordering") and self.request.GET.get("show") == "all":
@@ -161,8 +161,6 @@ class IndexView(generic.IndexView):
 
         for contenttype in ctx["object_list"]:
             instance = contenttype.model_class().objects.first()
-            # secondary_button_class = "button button-small button-secondary"
-            # primary_button_class = "button button-small button-primary"
 
             # SPECIAL CASE: Collection
             if isinstance(instance, Collection):
@@ -171,112 +169,53 @@ class IndexView(generic.IndexView):
 
             # FRONTEND URL
             frontend_instance_url = None
-            data_attr_frontend_instance_url = None
             try:
                 frontend_instance_url = instance.get_url()
-                data_attr_frontend_instance_url = (
-                    f'data-frontend-instance-url="{frontend_instance_url}"'
-                )
-                contenttype.frontend_url = mark_safe(
-                    f"""
-                    <a
-                    href="{frontend_instance_url}"
-                    class="button button-small button-secondary">
-                    View
-                    </a>
-                    """
+                contenttype.frontend_url = render_to_string(
+                    "model_inspector/fragments/link_secondary.html",
+                    {"url": frontend_instance_url},
                 )
             except AttributeError:
-                contenttype.frontend_url = mark_safe(
-                    """<span class="button button-small button-secondary" disabled>Does not exist</span>"""
+                contenttype.frontend_url = render_to_string(
+                    "model_inspector/fragments/does_not_exist.html",
                 )
 
             # ADMIN URL
             admin_instance_url = admin_url_finder.get_edit_url(instance)
-            data_attr_admin_instance_url = None
             if admin_instance_url:
-                data_attr_admin_instance_url = (
-                    f'data-admin-instance-url="{admin_instance_url}"'
-                )
-                contenttype.admin_edit_url = mark_safe(
-                    f"""
-                    <a
-                    href="{admin_instance_url}"
-                    class="button button-small button-secondary">
-                    Edit
-                    </a>
-                    """
+                contenttype.admin_edit_url = render_to_string(
+                    "model_inspector/fragments/link_secondary.html",
+                    {"url": admin_instance_url},
                 )
             else:
-                contenttype.admin_edit_url = mark_safe(
-                    """<span
-                    class="button button-small button-secondary"
-                    disabled>Does not exist
-                    </span>"""
+                contenttype.admin_edit_url = render_to_string(
+                    "model_inspector/fragments/does_not_exist.html",
                 )
 
             # LISTING URL
             listing_instance_url = admin_url_finder.get_listing_url(instance)
-            data_attr_listing_instance_url = None
             if listing_instance_url:
-                data_attr_listing_instance_url = (
-                    f'data-listing-instance-url="{listing_instance_url}"'
-                )
-                contenttype.listing = mark_safe(
-                    f"""
-                    <a
-                    href="{listing_instance_url}"
-                    class="button button-small button-secondary">
-                    View
-                    </a>
-                    """
+                contenttype.listing = render_to_string(
+                    "model_inspector/fragments/link_secondary.html",
+                    {"url": listing_instance_url},
                 )
             else:
-                contenttype.listing = mark_safe(
-                    """<span class="button button-small button-secondary" disabled>Does not exist</span>"""
+                contenttype.listing = render_to_string(
+                    "model_inspector/fragments/does_not_exist.html",
                 )
 
-            # Actions
-            if (
-                data_attr_frontend_instance_url
-                or data_attr_admin_instance_url
-                or data_attr_listing_instance_url
-            ):
-                contenttype.actions = mark_safe(
-                    """
-                    <button
-                    class="button button-small bicolor button--icon"
-                    aria-label="Test this model"
-                    title="Test this model"
-                    data-check-action
-                    onClick="checkResponses(this)"
-                    >
-                        <span class="icon-wrapper">
-                            <svg class="icon icon-resubmit icon" aria-hidden="true">
-                                <use href="#icon-resubmit"></use>
-                            </svg>
-                        </span>Check
-                    </button>
-                    """
-                )
+            # ACTIONS
+            contenttype.actions = render_to_string(
+                "model_inspector/fragments/check_button.html",
+            )
 
-            contenttype.exclude = mark_safe(
-                mark_safe(
-                    f"""
-                    <button
-                    data-model-inspector-copy
-                    class="button button-small bicolor button--icon"
-                    type="button"
-                    onclick="copyToClipboard(this)">
-                        <span class="icon-wrapper">
-                            <svg class="icon icon-copy icon" aria-hidden="true">
-                                <use href="#icon-copy"></use>
-                            </svg>
-                        </span>
-                        <span class="code">{f'("{contenttype.app_label}", "{contenttype.model}")'}</span>
-                    </button>
-                    """
-                )
+            # EXCLUDE
+            contenttype.exclude = render_to_string(
+                "model_inspector/fragments/copy_button.html",
+                {
+                    "app_label": contenttype.app_label,
+                    "model": contenttype.model,
+                },
             )
 
         return ctx
