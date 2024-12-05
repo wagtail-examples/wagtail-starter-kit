@@ -96,7 +96,7 @@ class IndexViewFilterSet(WagtailFilterSet):
 
 class IndexView(generic.IndexView):
     page_title = _("Model Inspector")
-    default_ordering = ["app_label", "model"]
+    default_ordering = ["model"]
     filterset_class = IndexViewFilterSet
     header_icon = "crosshairs"
     index_url_name = "model_inspector:index"
@@ -112,8 +112,8 @@ class IndexView(generic.IndexView):
         Column("frontend_url", label=_("Frontend Page")),
         Column("listing", label=_("Listing Page")),
         Column("actions", label=_("Actions"), classname="check-actions"),
-        Column("app_label", label=_("App label"), sort_key="app_label"),
         Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry to hide this model")),
+        Column("app_label", label=_("App label"), sort_key="app_label"),
     ]
 
     @cached_property
@@ -129,11 +129,11 @@ class IndexView(generic.IndexView):
             if show_all:
                 label = _("Enable MODEL_INSPECTOR_EXCLUDE")
                 show_all_url = "/admin/model-inspector"
-                icon = "error"
+                icon = "glasses"
             else:
                 label = _("Disable MODEL_INSPECTOR_EXCLUDE")
                 show_all_url = "/admin/model-inspector?show=all"
-                icon = "glasses"
+                icon = "cross"
 
             buttons.append(
                 HeaderButton(
