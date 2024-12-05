@@ -111,7 +111,7 @@ class IndexView(generic.IndexView):
         Column("admin_edit_url", label=_("Admin Page")),
         Column("frontend_url", label=_("Frontend Page")),
         Column("listing", label=_("Listing Page")),
-        Column("actions", label=_("Actions")),
+        Column("actions", label=_("Actions"), classname="check-actions"),
         Column("app_label", label=_("App label"), sort_key="app_label"),
         Column("exclude", label=_("MODEL_INSPECTOR_EXCLUDE entry to hide this model")),
     ]
@@ -248,6 +248,7 @@ class IndexView(generic.IndexView):
                     class="button button-small bicolor button--icon"
                     aria-label="Test this model"
                     title="Test this model"
+                    data-check-action
                     onClick="checkResponses(this)"
                     >
                         <span class="icon-wrapper">

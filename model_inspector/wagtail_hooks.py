@@ -19,7 +19,12 @@ def copy_script():
         '<script src="{0}"></script>',
         static("model_inspector/js/check.js"),
     )
-    return copy_script + check_script
+    actions_script = format_html(
+        '<script src="{0}"></script>',
+        static("model_inspector/js/actions_header.js"),
+    )
+
+    return copy_script + check_script + actions_script
 
 
 @hooks.register("register_admin_urls")
