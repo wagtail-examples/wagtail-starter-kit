@@ -10,21 +10,19 @@ from model_inspector.views import IndexView
 
 
 @hooks.register("insert_global_admin_js")
-def copy_script():
-    copy_script = format_html(
+def model_inspector_scripts():
+    return format_html(
         '<script src="{0}"></script>',
-        static("model_inspector/js/copy.js"),
-    )
-    check_script = format_html(
-        '<script src="{0}"></script>',
-        static("model_inspector/js/check.js"),
-    )
-    actions_script = format_html(
-        '<script src="{0}"></script>',
-        static("model_inspector/js/actions_header.js"),
+        static("model_inspector/js/model_inspector.js"),
     )
 
-    return copy_script + check_script + actions_script
+
+@hooks.register("insert_global_admin_css")
+def copy_css():
+    return format_html(
+        '<link rel="stylesheet" href="{}">',
+        static("model_inspector/css/model_inspector.css"),
+    )
 
 
 @hooks.register("register_admin_urls")

@@ -1,0 +1,4 @@
+table.model-inspector.listing tr.serious {
+    /* color: var(--w-color-white); */
+    background-color: var(--w-color-critical-50);
+}
