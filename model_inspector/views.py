@@ -16,16 +16,38 @@ from wagtail.images.models import Image
 from wagtail.models import Collection, Task, Workflow
 
 
-def base_queryset():
+def filter_exclude_queryset(qs=None):
     # adding this here so it can be used across the IndexView and the FilterSet
-    if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE"):
+    if not qs:
+        qs = ContentType.objects.all()
+
+    if (
+        hasattr(settings, "MODEL_INSPECTOR_EXCLUDE")
+        and settings.MODEL_INSPECTOR_EXCLUDE
+    ):
         exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
-        return ContentType.objects.exclude(
+        return qs.exclude(
             app_label__in=[app_label for app_label, _ in exclude_app_model],
             model__in=[model for _, model in exclude_app_model],
         )
+    else:
+        return qs
 
-    return ContentType.objects.all()
+    # if hasattr(settings, "MODEL_INSPECTOR_EXCLUDE") and settings.MODEL_INSPECTOR_EXCLUDE and qs is None:
+    #     exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
+    #     return ContentType.objects.exclude(
+    #         app_label__in=[app_label for app_label, _ in exclude_app_model],
+    #         model__in=[model for _, model in exclude_app_model],
+    #     )
+    # elif qs is not None:
+    #     exclude_app_model = settings.MODEL_INSPECTOR_EXCLUDE
+    #     return qs.exclude(
+    #         app_label__in=[app_label for app_label, _ in exclude_app_model],
+    #         model__in=[model for _, model in exclude_app_model],
+    #     )
+    # else:
+
+    # return ContentType.objects.all()
 
 
 class ModelInspectorAdminURLFinder(AdminURLFinder):
@@ -85,18 +107,27 @@ class IndexViewFilterSet(WagtailFilterSet):
     def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
         super().__init__(data=data, queryset=queryset, request=request, prefix=prefix)
 
-        self.filters["app_label"].extra["choices"] = sorted(
-            {(ct.app_label, ct.app_label) for ct in base_queryset()}
-        )
+        if not self.request.GET.get("exclude"):
+            self.filters["app_label"].extra["choices"] = sorted(
+                {(ct.app_label, ct.app_label) for ct in self.queryset}
+            )
 
-        self.filters["model"].extra["choices"] = sorted(
-            [(ct.model, ct.model) for ct in base_queryset()]
-        )
+            self.filters["model"].extra["choices"] = sorted(
+                [(ct.model, ct.model) for ct in self.queryset]
+            )
+        else:
+            self.filters["app_label"].extra["choices"] = sorted(
+                {(ct.app_label, ct.app_label) for ct in filter_exclude_queryset()}
+            )
+
+            self.filters["model"].extra["choices"] = sorted(
+                [(ct.model, ct.model) for ct in filter_exclude_queryset()]
+            )
 
 
 class IndexView(generic.IndexView):
     page_title = _("Model Inspector")
-    default_ordering = ["model"]
+    default_ordering = "model"
     filterset_class = IndexViewFilterSet
     header_icon = "crosshairs"
     index_url_name = "model_inspector_index"
@@ -124,16 +155,16 @@ class IndexView(generic.IndexView):
             hasattr(settings, "MODEL_INSPECTOR_EXCLUDE")
             and settings.MODEL_INSPECTOR_EXCLUDE
         ):
-            show_all = self.request.GET.get("show", None) == "all"
+            exclude = self.request.GET.get("exclude", None) == "true"
 
-            if show_all:
-                label = _("Enable MODEL_INSPECTOR_EXCLUDE")
+            if exclude:
+                label = _("Show All")
                 show_all_url = "/admin/model-inspector"
-                icon = "glasses"
-            else:
-                label = _("Disable MODEL_INSPECTOR_EXCLUDE")
-                show_all_url = "/admin/model-inspector?show=all"
                 icon = "cross"
+            else:
+                label = _("Hide Excluded")
+                show_all_url = "/admin/model-inspector?exclude=true"
+                icon = "glasses"
 
             buttons.append(
                 HeaderButton(
@@ -146,15 +177,12 @@ class IndexView(generic.IndexView):
 
         return buttons
 
-    def get_base_queryset(self):
-        # ensure that the ordering respects the visiblility of the excluded models
-        if not self.request.GET:
-            return base_queryset()
-        elif self.request.GET.get("ordering") and self.request.GET.get("show") == "all":
-            return super().get_base_queryset()
-        elif self.request.GET.get("ordering"):
-            return base_queryset()
-        return super().get_base_queryset()
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not self.request.GET.get("exclude"):
+            return qs
+        else:
+            return filter_exclude_queryset(qs)
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
