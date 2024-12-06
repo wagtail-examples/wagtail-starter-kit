@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.templatetags.static import static
-from django.urls import include, path, reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from wagtail import hooks
-from wagtail.admin.menu import AdminOnlyMenuItem
+from wagtail.admin.menu import AdminOnlyMenuItem, Menu, SubmenuMenuItem
 from wagtail.admin.ui.components import Component
 
-from model_inspector import urls
+from model_inspector.views import IndexView
 
 
 @hooks.register("insert_global_admin_js")
@@ -30,18 +30,28 @@ def copy_script():
 @hooks.register("register_admin_urls")
 def register_admin_urls():
     return [
-        path("model-inspector/", include(urls, namespace="model_inspector")),
+        path("model-inspector/", IndexView.as_view(), name="model_inspector_index"),
+        path(
+            "model-inspector/results/",
+            IndexView.as_view(results_only=True),
+            name="model_inspector_index_results",
+        ),
     ]
 
 
 @hooks.register("register_admin_menu_item")
 def register_model_inspector_menu_item():
-    return AdminOnlyMenuItem(
-        "Model Inspector",
-        reverse("model_inspector:index"),
-        icon_name="crosshairs",
-        order=10000,
+    submenu = Menu(
+        items=[
+            AdminOnlyMenuItem(
+                "Model Inspector",
+                reverse("model_inspector_index"),
+                icon_name="crosshairs",
+            )
+        ]
     )
+
+    return SubmenuMenuItem("Developer Tools", submenu, icon_name="sliders", order=99999)
 
 
 class WelcomePanel(Component):
@@ -59,4 +69,5 @@ class WelcomePanel(Component):
 
 @hooks.register("construct_homepage_panels")
 def add_another_welcome_panel(request, panels):
-    panels.append(WelcomePanel())
+    if request.user.is_superuser:
+        panels.append(WelcomePanel())

@@ -99,8 +99,8 @@ class IndexView(generic.IndexView):
     default_ordering = ["model"]
     filterset_class = IndexViewFilterSet
     header_icon = "crosshairs"
-    index_url_name = "model_inspector:index"
-    index_results_url_name = "model_inspector:index_results"
+    index_url_name = "model_inspector_index"
+    index_results_url_name = "model_inspector_index_results"
     model = ContentType
     search_fields = ["app_label", "model"]
     paginate_by = 50
