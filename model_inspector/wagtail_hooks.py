@@ -45,7 +45,12 @@ def register_model_inspector_menu_item():
                 "Model Inspector",
                 reverse("model_inspector_index"),
                 icon_name="crosshairs",
-            )
+            ),
+            AdminOnlyMenuItem(
+                "Model Inspector API",
+                reverse("model-inspector-api"),
+                icon_name="crosshairs",
+            ),
         ]
     )
 
