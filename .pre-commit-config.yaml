@@ -28,4 +28,4 @@ repos:
     rev: 1.23.1  # Keep in sync with locked version
     hooks:
     -   id: django-upgrade
-        args: [--target-version, "5.1.6"]   # Replace with Django version
+        args: [--target-version, "5.1"]   # Replace with Django version
