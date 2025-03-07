@@ -11,12 +11,12 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.0  # Keep in sync with locked version
+    rev: 6.0.1  # Keep in sync with locked version
     hooks:
       - id: isort
         name: isort (python)
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1  # Keep in sync with locked version
+    rev: 7.1.2  # Keep in sync with locked version
     hooks:
     -   id: flake8
   - repo: https://github.com/asottile/pyupgrade
